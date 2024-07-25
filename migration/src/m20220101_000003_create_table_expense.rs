@@ -12,7 +12,7 @@ pub mod expense {
     #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
     #[sea_orm(table_name = "expense")]
     pub struct Model {
-        #[sea_orm(primary_key)]
+        #[sea_orm(primary_key, auto_increment = false)]
         pub id: Uuid,
         pub budget_id: Uuid,
         pub amount: Decimal,
@@ -35,6 +35,12 @@ pub mod expense {
                     .to(budgets::Column::Id)
                     .into(),
             }
+        }
+    }
+
+    impl Related<budgets::Entity> for Entity {
+        fn to() -> RelationDef {
+            Relation::Budget.def()
         }
     }
 

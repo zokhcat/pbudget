@@ -8,7 +8,7 @@ use sea_orm::{Database, DatabaseConnection};
 async fn main() -> std::io::Result<()> {
     let db: DatabaseConnection = Database::connect("sqlite://store.sqlite?mode=rwc")
         .await
-        .expect("Failed      connect Database");
+        .expect("Failed to connect Database");
     Migrator::up(&db, None)
         .await
         .expect("Failed to migrate the database");

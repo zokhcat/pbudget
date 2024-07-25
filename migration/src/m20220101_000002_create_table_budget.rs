@@ -13,7 +13,7 @@ pub mod budgets {
     #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
     #[sea_orm(table_name = "budget")]
     pub struct Model {
-        #[sea_orm(primary_key)]
+        #[sea_orm(primary_key, auto_increment = false)]
         pub id: Uuid,
         pub user_id: Uuid,
         pub name: String,
