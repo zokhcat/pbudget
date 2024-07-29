@@ -1,6 +1,6 @@
 Todo
 
 - define endpoints - done
-- Integration with DB to store users - done
-- JWT Authentication
+- Setup ORM & Run Migrations on DB - done
+- JWT Authentication - done
 - integrate everything with each other
