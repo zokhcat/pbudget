@@ -24,7 +24,7 @@
 - **DELETE /api/budgets/{id}/expenses/{expense_id}**: Delete a specific expense by ID.
 
 
-## Future Todos
+## Future Todos(v0.1.1)
 - *Caching*: Caching data, no experience, going to research.
 - *Compression of data*: Use [zstd](https://crates.io/crates/zstd) to integrate compression of data.
 - *Deployment*: Deploy to Heroku if I have enough dynos.
