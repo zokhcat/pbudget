@@ -22,3 +22,14 @@
 - **GET /api/budgets/{id}/expenses/{expense_id}**: Get a specific expense by ID.
 - **PUT /api/budgets/{id}/expenses/{expense_id}**: Update a specific expense by ID.
 - **DELETE /api/budgets/{id}/expenses/{expense_id}**: Delete a specific expense by ID.
+
+
+## Future Todos
+- *Deployment*: Deploy to Heroku if I have enough dynos.
+- *Frontend Integration*: Simple frontend in react/next.js
+- *Testing*: Unit Tests and Integration Tests(I have never written tests)
+- *CI/CD*: (Applies if I have already deployed) Integrate Github Actions.
+- *Performance Optimization*: I have thought of few ways:
+   - reducing the dependency bloat in the entities and migration directory.
+   - Using [flamegraph](https://crates.io/crates/flamegraph) to profile my project.
+- *Documentation in Swagger*(?): I don't see the harm having the API documentation in README.md
