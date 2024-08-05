@@ -25,6 +25,8 @@
 
 
 ## Future Todos
+- *Caching*: Caching data, no experience, going to research.
+- *Compression of data*: Use [zstd](https://crates.io/crates/zstd) to integrate compression of data.
 - *Deployment*: Deploy to Heroku if I have enough dynos.
 - *Frontend Integration*: Simple frontend in react/next.js
 - *Testing*: Unit Tests and Integration Tests(I have never written tests)
