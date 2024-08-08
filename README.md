@@ -26,7 +26,7 @@
 
 ## Future Todos(v0.1.1)
 - *Caching*: Caching data, no experience, going to research.
-- *Compression of data*: Use [zstd](https://crates.io/crates/zstd) to integrate compression of data.
+- [X] *Compression of data*: Went with [default compressor](https://actix.rs/docs/response/#content-encoding) instead of zstd, which was giving messy semantic bugs.
 - *Deployment*: Deploy to Heroku if I have enough dynos.
 - *Frontend Integration*: Simple frontend in react/next.js
 - *Testing*: Unit Tests and Integration Tests(I have never written tests)
