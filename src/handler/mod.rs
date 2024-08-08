@@ -1,4 +1,4 @@
-use actix_web::{http::Error, web, HttpResponse};
+use actix_web::{http::Error, middleware::Compress, web, HttpResponse};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
 
@@ -26,6 +26,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .service(
                 web::scope("")
                     .wrap(Auth)
+                    .wrap(Compress::default())
                     .route("/profile", web::get().to(get_profile))
                     .route("/profile", web::put().to(update_profile))
                     .route("/budget", web::get().to(get_budgets))
