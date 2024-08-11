@@ -23,15 +23,15 @@
 - **PUT /api/budgets/{id}/expenses/{expense_id}**: Update a specific expense by ID.
 - **DELETE /api/budgets/{id}/expenses/{expense_id}**: Delete a specific expense by ID.
 
-
 ## Future Todos(v0.1.1)
-- *Caching*: Caching data, no experience, going to research.
-- [X] *Compression of data*: Went with [default compressor](https://actix.rs/docs/response/#content-encoding) instead of zstd, which was giving messy semantic bugs.
-- *Deployment*: Deploy to Heroku if I have enough dynos.
-- *Frontend Integration*: Simple frontend in react/next.js
-- *Testing*: Unit Tests and Integration Tests(I have never written tests)
-- *CI/CD*: (Applies if I have already deployed) Integrate Github Actions.
-- *Performance Optimization*: I have thought of few ways:
-   - reducing the dependency bloat in the entities and migration directory.
-   - Using [flamegraph](https://crates.io/crates/flamegraph) to profile my project.
-- *Documentation in Swagger*(?): I don't see the harm having the API documentation in README.md
+
+- [x]_Caching_: Implemented caching using [redis](https://redis.io/), fairly a side quest.
+- [x] _Compression of data_: Went with [default compressor](https://actix.rs/docs/response/#content-encoding) instead of zstd, which was giving messy semantic bugs.
+- _Deployment_: Deploy to Heroku if I have enough dynos.
+- _Frontend Integration_: Simple frontend in react/next.js
+- _Testing_: Unit Tests and Integration Tests(I have never written tests)
+- _CI/CD_: (Applies if I have already deployed) Integrate Github Actions.
+- _Performance Optimization_: I have thought of few ways:
+  - reducing the dependency bloat in the entities and migration directory.
+  - Using [flamegraph](https://crates.io/crates/flamegraph) to profile my project.
+- _Documentation in Swagger_(?): I don't see the harm having the API documentation in README.md

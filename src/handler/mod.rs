@@ -1,14 +1,14 @@
 use actix_web::{http::Error, middleware::Compress, web, HttpResponse};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
+use redis::Commands;
 
 use crate::{
     middleware::auth::Auth,
     utility::{
         db_structs::{
             LoginInfo, NewBudget, NewExpense, NewUser, UpdateBudget, UpdateExpense, UpdateUser,
-        },
-        token::sign_jwt,
+        }, redis::get_redis_connection, token::sign_jwt
     },
 };
 use entities::{budget, expense, users};
@@ -112,12 +112,30 @@ async fn get_profile(
     user_id: web::ReqData<Uuid>,
     pool: web::Data<DatabaseConnection>,
 ) -> Result<HttpResponse, Error> {
+    let mut conn = get_redis_connection();
+
+    let cached_profile: Option<String> = conn.get(format!("user_profile_{}", user_id.to_string())).ok(); 
+    if let Some(profile_json) = cached_profile {
+        return Ok(HttpResponse::Ok().json(profile_json));
+    }
+
     let user = users::Entity::find_by_id(user_id.into_inner().clone())
         .one(pool.get_ref())
         .await;
 
     match user {
-        Ok(Some(user)) => Ok(HttpResponse::Ok().json(user)),
+        Ok(Some(user)) => {
+            let active_user = user.clone().into_active_model();
+
+            let _: () = conn.set_ex(
+            format!("user_profile_{}", active_user.id.clone().unwrap().to_string()),
+            format!("id: {}, username: {}, email: {}", active_user.id.unwrap().to_string(), active_user.username.unwrap().to_string(), active_user.email.unwrap().to_string()),
+            86400,
+            )
+            .unwrap();
+            
+            Ok(HttpResponse::Ok().json(user))
+        },
         Ok(None) => Ok(HttpResponse::NotFound().finish()),
         Err(_) => Ok(HttpResponse::InternalServerError().finish()),
     }
@@ -128,6 +146,9 @@ async fn update_profile(
     pool: web::Data<DatabaseConnection>,
     form: web::Json<UpdateUser>,
 ) -> Result<HttpResponse, Error> {
+    let mut conn = get_redis_connection();
+    let _: () = conn.del(format!("user_profile_{}", user_id.to_string())).unwrap();
+
     let user = users::Entity::find_by_id(user_id.into_inner().clone())
         .one(pool.get_ref())
         .await;
@@ -152,7 +173,18 @@ async fn update_profile(
             let res = user.update(pool.get_ref()).await;
 
             match res {
-                Ok(user) => Ok(HttpResponse::Ok().json(user)),
+                Ok(user) => {
+                    let active_user = user.clone().into_active_model();
+
+                    let _: () = conn.set_ex(
+                    format!("user_profile_{}", active_user.id.clone().unwrap().to_string()),
+                    format!("id: {}, username: {}, email: {}", active_user.id.unwrap().to_string(), active_user.username.unwrap().to_string(), active_user.email.unwrap().to_string()),
+                    86400,
+                    )
+                    .unwrap();
+
+                    Ok(HttpResponse::Ok().json(user))
+                },
                 Err(_) => Ok(HttpResponse::InternalServerError().finish()),
             }
         }
@@ -181,6 +213,13 @@ async fn get_budget(
     budget_id: web::Path<Uuid>,
     pool: web::Data<DatabaseConnection>,
 ) -> Result<HttpResponse, Error> {
+    let mut conn = get_redis_connection();
+
+    let cached_budget: Option<String> = conn.get(format!("budget_{}_{}", user_id.to_string(), budget_id.to_string())).ok();
+    if let Some(budget_json) = cached_budget {
+        return Ok(HttpResponse::Ok().json(budget_json));
+    }
+
     let budget = budget::Entity::find()
         .filter(budget::Column::Id.eq(budget_id.into_inner().clone()))
         .filter(users::Column::Id.eq(user_id.into_inner().clone()))
@@ -188,7 +227,17 @@ async fn get_budget(
         .await;
 
     match budget {
-        Ok(Some(budget)) => Ok(HttpResponse::Ok().json(budget)),
+        Ok(Some(budget)) => {
+            let active_budget = budget.clone().into_active_model();
+            
+            let _: () = conn.set_ex(
+                format!("budget_{}_{}", active_budget.user_id.clone().unwrap().to_string(), active_budget.id.clone().unwrap().to_string()),
+                format!("id: {}, user_id: {}, name: {}, total_amount:{}, created_at:{}, updated_at:{}", active_budget.id.unwrap().to_string(), active_budget.user_id.unwrap().to_string(), active_budget.name.unwrap().to_string(), active_budget.total_amount.unwrap().to_string(), active_budget.created_at.unwrap().to_string(), active_budget.updated_at.unwrap().to_string()),
+                86400,
+            ).unwrap();
+
+            Ok(HttpResponse::Ok().json(budget))
+        },
         Ok(None) => Ok(HttpResponse::NotFound().finish()),
         Err(_) => Ok(HttpResponse::InternalServerError().finish()),
     }
@@ -233,6 +282,9 @@ async fn update_budget(
     pool: web::Data<DatabaseConnection>,
     form: web::Data<UpdateBudget>,
 ) -> Result<HttpResponse, Error> {
+    let mut conn = get_redis_connection();
+    let _: () = conn.del(format!("budget_{}_{}", user_id.to_string(), budget_id.to_string())).unwrap();
+
     let budget = budget::Entity::find()
         .filter(users::Column::Id.eq(user_id.into_inner().clone()))
         .filter(budget::Column::Id.eq(budget_id.into_inner().clone()))
@@ -256,7 +308,16 @@ async fn update_budget(
             let res = budget.update(pool.get_ref()).await;
 
             match res {
-                Ok(budget) => Ok(HttpResponse::Ok().json(budget)),
+                Ok(budget) => {
+                    let active_budget = budget.clone().into_active_model();
+            
+                    let _: () = conn.set_ex(
+                        format!("budget_{}_{}", active_budget.user_id.clone().unwrap().to_string(), active_budget.id.clone().unwrap().to_string()),
+                        format!("id: {}, user_id: {}, name: {}, total_amount:{}, created_at:{}, updated_at:{}", active_budget.id.unwrap().to_string(), active_budget.user_id.unwrap().to_string(), active_budget.name.unwrap().to_string(), active_budget.total_amount.unwrap().to_string(), active_budget.created_at.unwrap().to_string(), active_budget.updated_at.unwrap().to_string()),
+                        86400,
+                    ).unwrap();
+                    Ok(HttpResponse::Ok().json(budget))
+                },
                 Err(_) => Ok(HttpResponse::InternalServerError().finish()),
             }
         }
@@ -270,6 +331,9 @@ async fn delete_budget(
     budget_id: web::Path<Uuid>,
     pool: web::Data<DatabaseConnection>,
 ) -> Result<HttpResponse, Error> {
+    let mut conn  = get_redis_connection();
+    let _: () = conn.del(format!("budget_{}_{}", user_id.to_string(), budget_id.to_string())).unwrap();
+
     let res = budget::Entity::delete_many()
         .filter(users::Column::Id.eq(user_id.into_inner().clone()))
         .filter(budget::Column::Id.eq(budget_id.into_inner().clone()))
@@ -302,18 +366,35 @@ async fn get_expenses(
 async fn get_expense(
     user_id: web::ReqData<Uuid>,
     budget_id: web::Path<Uuid>,
-    expense: web::Path<Uuid>,
+    expense_id: web::Path<Uuid>,
     pool: web::Data<DatabaseConnection>,
 ) -> Result<HttpResponse, Error> {
+    let mut conn = get_redis_connection();
+    
+    let cached_budget: Option<String> = conn.get(format!("expense_{}_{}_{}", user_id.to_string(), budget_id.to_string(), expense_id.to_string())).ok();
+    if let Some(budget_json) = cached_budget {
+        return Ok(HttpResponse::Ok().json(budget_json));
+    }
+
     let expense = expense::Entity::find()
-        .filter(users::Column::Id.eq(user_id.into_inner().clone()))
+        .filter(users::Column::Id.eq(user_id.clone().into_inner().clone()))
         .filter(budget::Column::Id.eq(budget_id.into_inner().clone()))
-        .filter(expense::Column::Id.eq(expense.into_inner().clone()))
+        .filter(expense::Column::Id.eq(expense_id.into_inner().clone()))
         .one(pool.get_ref())
         .await;
 
     match expense {
-        Ok(Some(expense)) => Ok(HttpResponse::Ok().json(expense)),
+        Ok(Some(expense)) => {
+            let active_expense = expense.clone().into_active_model();
+            
+            let _: () = conn.set_ex(
+                format!("expense_{}_{}_{}", user_id.to_string(), active_expense.clone().budget_id.unwrap().to_string(), active_expense.id.clone().unwrap().to_string()),
+                format!("id: {}, budget_id: {}, amount: {}, description: {}, date: {}, created_at: {}, updated_at:{}", active_expense.id.unwrap().to_string(), active_expense.budget_id.unwrap().to_string(), active_expense.amount.unwrap().to_string(), active_expense.description.unwrap().to_string(), active_expense.date.unwrap().to_string(), active_expense.created_at.unwrap().to_string(), active_expense.updated_at.unwrap().to_string()),
+                86400
+            ).unwrap();
+
+            Ok(HttpResponse::Ok().json(expense))
+        },
         Ok(None) => Ok(HttpResponse::NotFound().finish()),
         Err(_) => Ok(HttpResponse::InternalServerError().finish()),
     }
@@ -360,8 +441,11 @@ async fn update_expense(
     form: web::Data<UpdateExpense>,
     pool: web::Data<DatabaseConnection>,
 ) -> Result<HttpResponse, Error> {
-    let expense = expense::Entity::find()
-        .filter(users::Column::Id.eq(user_id.into_inner().clone()))
+    let mut conn = get_redis_connection();
+    let _:() = conn.del(format!("expense_{}_{}_{}", user_id.to_string(), budget_id.to_string(), expense_id.to_string())).unwrap();
+
+    let expense: Result<Option<expense::Model>, prelude::DbErr> = expense::Entity::find()
+        .filter(users::Column::Id.eq(user_id.clone().into_inner().clone()))
         .filter(budget::Column::Id.eq(budget_id.into_inner().clone()))
         .filter(expense::Column::Id.eq(expense_id.into_inner().clone()))
         .one(pool.get_ref())
@@ -384,7 +468,17 @@ async fn update_expense(
             let res = expense.update(pool.as_ref()).await;
 
             match res {
-                Ok(expense) => Ok(HttpResponse::Ok().json(expense)),
+                Ok(expense) => {
+                    let active_expense = expense.clone().into_active_model();
+            
+                    let _: () = conn.set_ex(
+                    format!("expense_{}_{}_{}", user_id.to_string(), active_expense.clone().budget_id.unwrap().to_string(), active_expense.id.clone().unwrap().to_string()),
+                    format!("id: {}, budget_id: {}, amount: {}, description: {}, date: {}, created_at: {}, updated_at:{}", active_expense.id.unwrap().to_string(), active_expense.budget_id.unwrap().to_string(), active_expense.amount.unwrap().to_string(), active_expense.description.unwrap().to_string(), active_expense.date.unwrap().to_string(), active_expense.created_at.unwrap().to_string(), active_expense.updated_at.unwrap().to_string()),
+                    86400
+                    ).unwrap();
+
+                    Ok(HttpResponse::Ok().json(expense))
+                },
                 Err(_) => Ok(HttpResponse::InternalServerError().finish()),
             }
         }
@@ -399,6 +493,9 @@ async fn delete_expense(
     expense_id: web::Path<Uuid>,
     pool: web::Data<DatabaseConnection>,
 ) -> Result<HttpResponse, Error> {
+    let mut conn = get_redis_connection();
+    let _:() = conn.del(format!("expense_{}_{}_{}", user_id.to_string(), budget_id.to_string(), expense_id.to_string())).unwrap();
+
     let res = budget::Entity::delete_many()
         .filter(users::Column::Id.eq(user_id.into_inner().clone()))
         .filter(budget::Column::Id.eq(budget_id.into_inner().clone()))
