@@ -25,7 +25,7 @@
 
 ## Future Todos(v0.1.1)
 
-- [x]_Caching_: Implemented caching using [redis](https://redis.io/), fairly a side quest.
+- [x] _Caching_: Implemented caching using [redis](https://redis.io/), fairly a side quest.
 - [x] _Compression of data_: Went with [default compressor](https://actix.rs/docs/response/#content-encoding) instead of zstd, which was giving messy semantic bugs.
 - _Deployment_: Deploy to Heroku if I have enough dynos.
 - _Frontend Integration_: Simple frontend in react/next.js
