@@ -2,3 +2,4 @@
 store.sqlite
 .env
 Cargo.lock
+perf.data

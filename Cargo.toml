@@ -6,6 +6,9 @@ edition = "2021"
 [workspace]
 members = [".", "entities", "migration"]
 
+[profile.release]
+debug = true
+
 [dependencies]
 entities = { path = "entities" }
 migration = { path = "migration" } 

@@ -30,7 +30,7 @@
 - _Deployment_: Deploy to Heroku if I have enough dynos.
 - _Frontend Integration_: Simple frontend in react/next.js
 - _Testing_: Unit Tests and Integration Tests(I have never written tests)
-- _CI/CD_: (Applies if I have already deployed) Integrate Github Actions.
+- [x] _CI/CD_: Containerize using Docker
 - _Performance Optimization_: I have thought of few ways:
   - reducing the dependency bloat in the entities and migration directory.
   - Using [flamegraph](https://crates.io/crates/flamegraph) to profile my project.
