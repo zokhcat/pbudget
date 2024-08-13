@@ -1,4 +1,6 @@
-# Personal Budgeting App
+# Personal Budgeting API
+
+**[Document](https://zokhcat.notion.site/Personal-Budget-API-pbudget-cc8a5ce63fe34685b5be0551231c87a8)**
 
 ## Tech Stack
 
@@ -30,7 +32,7 @@
 - _Deployment_: Deploy to Heroku if I have enough dynos.
 - _Frontend Integration_: Simple frontend in react/next.js
 - _Testing_: Unit Tests and Integration Tests(I have never written tests)
-- [x] _CI/CD_: Containerize using Docker
+- [x] _Containerize_: Containerize using Docker
 - _Performance Optimization_: I have thought of few ways:
   - reducing the dependency bloat in the entities and migration directory.
   - Using [flamegraph](https://crates.io/crates/flamegraph) to profile my project.
