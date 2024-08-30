@@ -1,5 +1,7 @@
 # Personal Budgeting API
 
+[![Architecture](http://img.youtube.com/vi/xa3ZMVu8dJ8/0.jpg)](http://www.youtube.com/watch?v=xa3ZMVu8dJ8?t=35s "Personal Budget API Architecture")
+
 **[Document](https://zokhcat.notion.site/Personal-Budget-API-pbudget-cc8a5ce63fe34685b5be0551231c87a8)**
 
 ## Tech Stack
