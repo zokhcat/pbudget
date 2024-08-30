@@ -1,6 +1,12 @@
 # Personal Budgeting API
 
-[![Architecture](http://img.youtube.com/vi/xa3ZMVu8dJ8/0.jpg)](http://www.youtube.com/watch?v=xa3ZMVu8dJ8?t=35s "Personal Budget API Architecture")
+<video width="320" height="240" controls>
+  <source src="./assets/video.mp4" type="video/mp4">
+</video>
+
+### Workflow API and Data Model
+
+<img alt="Workflow API and Data Model" src="./assets/arch.png" >
 
 **[Document](https://zokhcat.notion.site/Personal-Budget-API-pbudget-cc8a5ce63fe34685b5be0551231c87a8)**
 
