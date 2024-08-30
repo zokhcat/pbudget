@@ -1,8 +1,6 @@
 # Personal Budgeting API
 
-<video width="320" height="240" controls>
-  <source src="./assets/video.mp4" type="video/mp4">
-</video>
+### [Video](https://youtu.be/xa3ZMVu8dJ8?si=NeIeQL1soZUM5W1g)
 
 ### Workflow API and Data Model
 
